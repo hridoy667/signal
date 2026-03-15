@@ -1,48 +1,41 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
-import { ConfigService } from '@nestjs/config';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class MailService {
-  private readonly logger = new Logger(MailService.name);
-
   constructor(
-    private readonly mailerService: MailerService,
-    private readonly config: ConfigService,
+    // Inject the queue we registered in the module
+    @InjectQueue('mail_queue') private readonly mailQueue: Queue,
   ) {}
 
-  // The missing function for OTP
-  async sendOtpCodeToEmail({
-    name,
-    email,
-    otp,
-  }: {
-    name: string;
-    email: string;
-    otp: string;
-  }) {
+  async sendOtpCodeToEmail(data: { email: string; name: string; otp: string }) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const appName = this.config.get('app.name');
-      const from = `${appName} <${this.config.get('mail.from')}>`;
-
-      await this.mailerService.sendMail({
-        to: email,
-        from,
-        subject: 'Email Verification Code',
-        template: './email-verification', // This points to email-verification.hbs
-        context: {
-          name,
-          otp,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          appName,
+      // Add the job to the queue
+      await this.mailQueue.add(
+        'sendOtp', // Job name
+        {
+          ...data,
+          appName: process.env.APP_NAME || 'Signal Clone',
         },
-      });
+        {
+          attempts: 3, // If SMTP fails, try 3 times
+          backoff: {
+            type: 'exponential',
+            delay: 5000, // Wait 5s, then 10s, etc.
+          },
+          removeOnComplete: true, // Clean up Redis after success
+        },
+      );
 
-      this.logger.log(`OTP sent successfully to ${email}`);
+      return { success: true };
     } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      this.logger.error(`Failed to send OTP to ${email}: ${error.message}`);
+      console.error('Error adding mail to queue:', error);
+      throw new InternalServerErrorException(
+        'Could not queue the verification email',
+      );
     }
   }
 }

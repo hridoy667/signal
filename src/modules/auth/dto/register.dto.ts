@@ -1,11 +1,14 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { IsNotEmpty,IsString } from 'class-validator';
+import { IsNotEmpty,IsOptional,IsString } from 'class-validator';
 
-export class CreateAuthDto {
+export class RegisterDto {
     @IsNotEmpty()
     @IsString()
-    name:string;
+    first_name:string;
+
+    @IsOptional()
+    @IsString()
+    last_name:string;
 
     @IsNotEmpty()
     @IsString()
@@ -19,4 +22,6 @@ export class CreateAuthDto {
     @IsString()
     district: string;
     
+    @IsString()
+    gender:string;
 }

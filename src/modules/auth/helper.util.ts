@@ -6,7 +6,6 @@ import configuration from '../../config/app.config';
 export async function hashPassword(password: string): Promise<string> {
   // configuration() returns a plain object, no 'await' needed
   const salt = configuration().security.salt;
-  // bcrypt.hash returns a Promise<string>
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
   return bcrypt.hash(password, salt);
 }

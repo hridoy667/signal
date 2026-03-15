@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 // You'll need to install: yarn add cookie-parser
 // import * as cookieParser from 'cookie-parser';
 
@@ -42,6 +42,8 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document, {
     useGlobalPrefix: false,
   });
+
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   app.useStaticAssets('public');
 

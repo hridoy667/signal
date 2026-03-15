@@ -12,14 +12,16 @@ model User {
   id        String          @id @default(uuid())
   email     String          @unique
   phone     String?         @unique
-  name      String?
+  first_name      String?
+  last_name      String?
   userName  String?         @unique
   password  String
+  gender    Gender?
   district  String?
-  zilla     String?
   upazila   String?
   avatarUrl String?
   bio       String?
+  dateOfBirth DateTime?
   interests UserInterest[]
   latitude  Float?
   longitude Float?
@@ -39,6 +41,11 @@ enum Interest {
   TECHNOLOGY
   SPORTS
   ART
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }
 
 model UserInterest {
@@ -106,5 +113,13 @@ model conversationParticipant {
   conversationId String
   userId String
   conversation conversation @relation(fields: [conversationId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model verificationToken {
+  id String @id @default(uuid())
+  userId String
+  token String
+  expiresAt DateTime
   user User @relation(fields: [userId], references: [id])
 }

@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ConflictException, Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import { RegisterDto } from './dto/register.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { hashPassword } from './helper.util';
@@ -13,10 +14,10 @@ import * as path from 'path';
 export class AuthService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async create(createAuthDto: CreateAuthDto, image?: Express.Multer.File) {
-    if (createAuthDto.email) {
+  async create(registerDto: RegisterDto, image?: Express.Multer.File) {
+    if (registerDto.email) {
       const existingUser = await this.prisma.user.findUnique({
-        where: { email: createAuthDto.email },
+        where: { email: registerDto.email },
       });
       if (existingUser) throw new ConflictException('Email already exists')
     }
@@ -35,17 +36,21 @@ export class AuthService {
       avatarUrl = generateAvatarUrl(fileName);
     }
     
-    const hashedPassword = await hashPassword(createAuthDto.password);
+    const hashedPassword = await hashPassword(registerDto.password);
+
+    //store everything in redis and set an expiry of 15 mins
+
+    
 
     const newUser = await this.prisma.user.create({
       data: {
-        name: createAuthDto.name,
-        email: createAuthDto.email,
+        first_name: registerDto.first_name,
+        last_name: registerDto.last_name,
+        email: registerDto.email,
         password: hashedPassword,
-        district: createAuthDto.district,
-        // Note: your schema has 'zilla' and 'upazila', 
+        district: registerDto.district,
         // check if 'location' matches your DTO or schema
-        zilla: createAuthDto.district, // Assuming 'district' maps to 'zilla'
+        gender:registerDto.gender,
         avatarUrl: avatarUrl,
       }
     });
@@ -55,6 +60,23 @@ export class AuthService {
       newUser
     }
   }
+
+  async login(loginDto){
+    const user=await this.prisma.user.findFirst({
+      where:{
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        email:loginDto.email
+      }
+    })
+
+    if(!user){
+      return{
+        success:false,
+        message:'Invalid email or password'
+      }
+    }
+  }
+
 
   findAll() {
     return `This action returns all auth`;
