@@ -31,6 +31,7 @@ model User {
   postVotes postVote[]
   messages message[]
   conversationParticipants conversationParticipant[]
+  verificationTokens verificationToken[]
 
   @@map("users")
 }
@@ -118,8 +119,9 @@ model conversationParticipant {
 
 model verificationToken {
   id String @id @default(uuid())
-  userId String
+  userId String?
+  email String?
   token String
   expiresAt DateTime
-  user User @relation(fields: [userId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id])
 }
