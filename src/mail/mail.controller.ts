@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 // src/app.controller.ts
 import { Controller, Get } from '@nestjs/common';
 import { MailService } from './mail.service'; // Adjust path as needed

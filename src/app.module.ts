@@ -4,10 +4,14 @@ import { RedisModule } from '@nestjs-modules/ioredis';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import configuration from './config/app.config'; // Your custom config file
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
     // 1. You MUST load the ConfigModule first
+    AuthModule,
+    UsersModule,
     ConfigModule.forRoot({
       load: [configuration],
       isGlobal: true, // This makes it available to RedisModule and others

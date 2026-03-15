@@ -13,6 +13,7 @@ model User {
   email     String          @unique
   phone     String?         @unique
   name      String?
+  userName  String?         @unique
   password  String
   district  String?
   zilla     String?

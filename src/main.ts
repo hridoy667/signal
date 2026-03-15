@@ -1,8 +1,50 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+// You'll need to install: yarn add cookie-parser
+// import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // 1. Global Prefix
+  app.setGlobalPrefix('api');
+
+  // 2. Validation: Transforms plain objects to DTO classes and strips extra fields
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Strips fields not defined in the DTO
+      transform: true, // Automatically converts types (e.g., string "1" to number 1)
+      forbidNonWhitelisted: true, // Throws error if extra fields are sent
+    }),
+  );
+
+  // 3. CORS: Allows your frontend (React/Flutter) to talk to the backend
+  app.enableCors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true, // Required for cookies/sessions
+  });
+
+  // 4. Cookie Parser: Essential for secure Refresh Tokens later
+  // app.use(cookieParser());
+
+  // Swagger setup...
+  const options = new DocumentBuilder()
+    .setTitle(`${process.env.APP_NAME} API`)
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('api/docs', app, document, {
+    useGlobalPrefix: false,
+  });
+
+  app.useStaticAssets('public');
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
