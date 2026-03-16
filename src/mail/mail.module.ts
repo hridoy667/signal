@@ -1,17 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { ConfigService } from '@nestjs/config';
-import { BullModule } from '@nestjs/bullmq'; // Import BullModule
+import { BullModule } from '@nestjs/bullmq';
 import { MailService } from './mail.service';
-import { MailProcessor } from './mail.processor'; // We will create this next
+import { MailProcessor } from './mail.processor';
 import { join } from 'path';
 
 @Module({
   imports: [
-    // 1. Register the queue for this specific module
     BullModule.registerQueue({
       name: 'mail_queue',
     }),
@@ -41,7 +38,6 @@ import { join } from 'path';
       }),
     }),
   ],
-  // 2. Add MailProcessor to providers so it can run in the background
   providers: [MailService, MailProcessor],
   exports: [MailService],
 })

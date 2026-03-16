@@ -1,6 +1,6 @@
 export default () => ({
   app: {
-    name: process.env.APP_NAME,
+    name: process.env.APPNAME,
     key: process.env.APP_KEY,
     url: process.env.APP_URL,
     client_app_url: process.env.CLIENT_APP_URL,

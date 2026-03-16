@@ -18,13 +18,13 @@ export class MailProcessor extends WorkerHost {
     this.logger.log(`Processing mail job: ${job.name}`);
 
     const { email, name, otp, appName } = job.data;
-
+    console.log(appName);
     try {
       await this.mailerService.sendMail({
         to: email,
         subject: 'Email Verification Code',
         template: './email-verification', // points to templates/email-verification.hbs
-        context: { name, otp, appName },
+        context: { name, otp, appName: 'Signal' },
       });
       this.logger.log(`Email sent successfully to ${email}`);
     } catch (error) {

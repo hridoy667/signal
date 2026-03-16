@@ -124,4 +124,5 @@ model verificationToken {
   token String
   expiresAt DateTime
   user      User?    @relation(fields: [userId], references: [id])
+  @@map("verification_tokens")
 }

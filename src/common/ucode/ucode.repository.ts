@@ -1,62 +1,47 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable prettier/prettier */
-// Important: Import PrismaClient from your CUSTOM path as defined in your generator
-import { PrismaClient } from '@prisma/client'; 
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../modules/prisma/prisma.service'; // Ensure this path is correct
 
-const prisma = new PrismaClient();
-
+@Injectable()
 export class UcodeRepository {
+  // Inject your existing PrismaService instead of "new PrismaClient()"
+  constructor(private readonly prisma: PrismaService) {}
 
-    static async createOtp(email: string, userId?: string) {
-        const otpExpiryTime = 2 * 60 * 1000; // 2 minutes
-        const expiresAt = new Date(Date.now() + otpExpiryTime);
+  async createOtp(email: string, userId?: string) {
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
+    const token = String(Math.floor(100000 + Math.random() * 900000));
 
-        const token = String(Math.floor(100000 + Math.random() * 900000));
-        
-        try {
-            await prisma.verificationToken.create({
-                data: {
-                    token,
-                    expiresAt,
-                    email,
-                    userId: userId ?? undefined 
-                }
-            });
-            return token;
-        } catch (error) {
-            console.error("Prisma Error:", error);
-            throw error;
-        }
+    try {
+      // Use the instance property: this.prisma
+      await this.prisma.verificationToken.create({
+        data: {
+          token,
+          expiresAt,
+          email,
+          userId: userId ?? undefined,
+        },
+      });
+      return token;
+    } catch (error) {
+      console.error('Prisma Error:', error);
+      throw error;
     }
+  }
 
-
-
-    static async verifyOtp(email: string, userOtp: string): Promise<boolean> {
-    //Find the most recent token for this email
-    const record = await prisma.verificationToken.findFirst({
-      where: { 
-        email: email,
-        token: userOtp 
-      },
+  async verifyOtp(email: string, userOtp: string): Promise<boolean> {
+    const record = await this.prisma.verificationToken.findFirst({
+      where: { email, token: userOtp },
       orderBy: { expiresAt: 'desc' },
     });
 
-    if (!record) {
-      throw new Error('Invalid verification code');
-    }
+    if (!record) throw new Error('Invalid verification code');
 
-    // 3. Check if it has expired
-    const isExpired = new Date() > record.expiresAt;
-    if (isExpired) {
-      await prisma.verificationToken.delete({ where: { id: record.id } });
+    if (new Date() > record.expiresAt) {
+      await this.prisma.verificationToken.delete({ where: { id: record.id } });
       throw new Error('Verification code has expired');
     }
 
-    // Delete the token
-    await prisma.verificationToken.delete({ where: { id: record.id } });
-    
+    await this.prisma.verificationToken.delete({ where: { id: record.id } });
     return true;
   }
 }
