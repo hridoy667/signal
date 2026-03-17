@@ -1,27 +1,50 @@
-/* eslint-disable prettier/prettier */
-import { IsNotEmpty,IsOptional,IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+
+// Optional: Use an Enum for Gender to prevent typos
+enum Gender {
+  male = 'male',
+  female = 'female',
+}
 
 export class RegisterDto {
-    @IsNotEmpty()
-    @IsString()
-    first_name:string;
+  @ApiProperty({ example: 'John' })
+  @IsNotEmpty()
+  @IsString()
+  first_name: string;
 
-    @IsOptional()
-    @IsString()
-    last_name:string;
+  @ApiPropertyOptional({ example: 'Doe' })
+  @IsOptional()
+  @IsString()
+  last_name: string;
 
-    @IsNotEmpty()
-    @IsString()
-    email: string;
+  @ApiProperty({ example: 'john@example.com' })
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
 
-    @IsNotEmpty()
-    @IsString()
-    password: string;
+  @ApiProperty({ example: 'strongPassword123', minLength: 6 })
+  @IsNotEmpty()
+  @IsString()
+  password: string;
 
-    @IsNotEmpty()
-    @IsString()
-    district: string;
-    
-    @IsString()
-    gender:string;
+  @ApiProperty({ example: 'Dhaka' })
+  @IsNotEmpty()
+  @IsString()
+  district: string;
+
+  @ApiProperty({ enum: Gender, example: 'male' })
+  @IsNotEmpty()
+  @IsEnum(Gender)
+  gender: string;
+
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
+  @IsOptional()
+  image?: any;
 }

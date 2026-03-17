@@ -1,18 +1,25 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Post, Body, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto} from './dto/register.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import { verifyDto } from './dto/verify-email.dto';
+import { ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { resendOtpDto } from './dto/resend-otp.dto';
 import { LoginDto } from './dto/login.dto';
 // import { memoryStorage } from 'multer';
 
+
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   @Post('register')
+  @ApiOperation({ summary: 'Register a new user (Waiting Room)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 201, description: 'OTP sent to email.' })
   @UseInterceptors(
     FileInterceptor('image', {
       storage: memoryStorage(),
@@ -29,29 +36,25 @@ export class AuthController {
   }
 
 
+
+  @Post('verify-email')
+  @ApiOperation({ summary: 'Verify OTP and create permanent account' })
+  verify(@Body() verifydto:verifyDto){
+    return this.authService.verifyEmail(verifydto)
+  }
+
+
+  @Post('resend-otp')
+  @ApiOperation({ summary: 'Resend OTP to email' })
+  resendOtp(@Body() resendOtpdto: resendOtpDto) {
+    return this.authService.resendOtp(resendOtpdto.email);
+  }
+  
+
   @Post('login')
-  login(@Body() loginDto:LoginDto){
-    return this.authService.login(loginDto)
-  }
-
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @ApiOperation({ summary: 'Login user' })
+  login(@Body() logindto:LoginDto) {
+    return this.authService.login(logindto);
   }
 }
 

@@ -25,6 +25,7 @@ model User {
   interests UserInterest[]
   latitude  Float?
   longitude Float?
+  isVerified Boolean        @default(false)
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
   posts post[]
@@ -45,8 +46,8 @@ enum Interest {
 }
 
 enum Gender {
-  MALE
-  FEMALE
+  male
+  female
 }
 
 model UserInterest {

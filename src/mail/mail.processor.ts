@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Processor, WorkerHost } from '@nestjs/bullmq';
@@ -22,7 +21,7 @@ export class MailProcessor extends WorkerHost {
       await this.mailerService.sendMail({
         to: email,
         subject: 'Email Verification Code',
-        template: './email-verification', // points to templates/email-verification.hbs
+        template: './email-verification',
         context: { name, otp, appName: 'Signal' },
       });
       this.logger.log(`Email sent successfully to ${email}`);

@@ -17,3 +17,5 @@ export async function comparePassword(
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
   return bcrypt.compare(password, hash);
 }
+
+//jwt generator and validator function below
