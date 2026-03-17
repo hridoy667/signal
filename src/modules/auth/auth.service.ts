@@ -191,6 +191,7 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload, { expiresIn: '5h' });
+
     return {
       success: true,
       message: 'Login successful',
