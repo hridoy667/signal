@@ -1,20 +1,32 @@
-/* eslint-disable prettier/prettier */
-import { Controller, Post, Body, UseInterceptors, UploadedFile } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import {
+  Controller,
+  Post,
+  Body,
+  UseInterceptors,
+  UploadedFile,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto} from './dto/register.dto';
+import { RegisterDto } from './dto/register.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { verifyDto } from './dto/verify-email.dto';
-import { ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { resendOtpDto } from './dto/resend-otp.dto';
 import { LoginDto } from './dto/login.dto';
-// import { memoryStorage } from 'multer';
-
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new user (Waiting Room)' })
@@ -35,27 +47,29 @@ export class AuthController {
     return this.authService.create(registerDto, image);
   }
 
-
-
   @Post('verify-email')
   @ApiOperation({ summary: 'Verify OTP and create permanent account' })
-  verify(@Body() verifydto:verifyDto){
-    return this.authService.verifyEmail(verifydto)
+  verify(@Body() verifydto: verifyDto) {
+    return this.authService.verifyEmail(verifydto);
   }
-
 
   @Post('resend-otp')
   @ApiOperation({ summary: 'Resend OTP to email' })
   resendOtp(@Body() resendOtpdto: resendOtpDto) {
     return this.authService.resendOtp(resendOtpdto.email);
   }
-  
 
   @Post('login')
   @ApiOperation({ summary: 'Login user' })
-  login(@Body() logindto:LoginDto) {
+  login(@Body() logindto: LoginDto) {
     return this.authService.login(logindto);
   }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Logout user' })
+  logout(@Request() req) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    return this.authService.logout(req.user.userId);
+  }
 }
-
-

@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../modules/prisma/prisma.service'; // Ensure this path is correct
 

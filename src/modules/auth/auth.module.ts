@@ -5,11 +5,14 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { MailModule } from 'src/mail/mail.module';
 import { UcodeRepository } from 'src/common/ucode/ucode.repository';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from 'src/common/strategies/jwt.strategies';
 
 @Module({
   imports: [
     PrismaModule,
     MailModule,
+    PassportModule,
     JwtModule.register({
       global: true, // This makes it available everywhere
       secret: process.env.JWT_SECRET || 'your-fallback-secret', // Use your .env variable
@@ -17,6 +20,6 @@ import { JwtModule } from '@nestjs/jwt';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UcodeRepository],
+  providers: [AuthService, UcodeRepository, JwtStrategy],
 })
 export class AuthModule {}

@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { comparePassword, hashPassword } from './helper.util';
@@ -19,15 +22,15 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService,
+  constructor(
+    private readonly prisma: PrismaService,
     private readonly ucodeRepository: UcodeRepository,
     private jwtService: JwtService,
     private readonly mailService: MailService,
     @InjectRedis() private readonly redis: Redis,
-  ) { }
+  ) {}
 
   async create(registerDto: RegisterDto, image?: Express.Multer.File) {
-
     const existingUser = await this.prisma.user.findUnique({
       where: { email: registerDto.email },
     });
@@ -49,7 +52,7 @@ export class AuthService {
     //Hash Password
     const hashedPassword = await hashPassword(registerDto.password);
 
-    //Store in Redis for 15 minutes 
+    //Store in Redis for 15 minutes
     const tempUserData = {
       ...registerDto,
       password: hashedPassword,
@@ -75,29 +78,34 @@ export class AuthService {
 
     return {
       success: true,
-      message: 'Verification code sent to your email. Please verify to complete registration.',
+      message:
+        'Verification code sent to your email. Please verify to complete registration.',
     };
   }
 
-
   async verifyEmail(verifydto: verifyDto) {
     try {
-      // 1. Verify OTP
-      const isValid = await this.ucodeRepository.verifyOtp(verifydto.email, verifydto.otp);
+      // Verify OTP
+      const isValid = await this.ucodeRepository.verifyOtp(
+        verifydto.email,
+        verifydto.otp,
+      );
 
       if (!isValid) {
         throw new BadRequestException('Invalid or expired OTP');
       }
 
-      // 2. Get temp data from Redis
-      const tempUserDataStr = await this.redis.get(`temp_user:${verifydto.email}`);
+      // Get temp data from Redis
+      const tempUserDataStr = await this.redis.get(
+        `temp_user:${verifydto.email}`,
+      );
       if (!tempUserDataStr) {
         throw new ConflictException('Session expired. Please register again.');
       }
 
       const tempUserData = JSON.parse(tempUserDataStr);
 
-      // 3. Create user in DB
+      // Create user in DB
       const newUser = await this.prisma.user.create({
         data: {
           email: tempUserData.email,
@@ -105,13 +113,12 @@ export class AuthService {
           last_name: tempUserData.last_name,
           password: tempUserData.password,
           avatarUrl: tempUserData.avatarUrl,
-          // Add other fields like district/gender if they are in your RegisterDto
           district: tempUserData.district,
           gender: tempUserData.gender,
         },
       });
 
-      // 4. CLEANUP: Remove data from Redis so it can't be used again
+      // Remove data from Redis so it can't be used again
       await this.redis.del(`temp_user:${verifydto.email}`);
 
       // 5. RETURN success
@@ -120,26 +127,27 @@ export class AuthService {
         message: 'Email verified successfully. Account created.',
         user: {
           id: newUser.id,
-          email: newUser.email
-        }
+          email: newUser.email,
+        },
       };
-
     } catch (error) {
       // Rethrow if it's already a NestJS exception, otherwise wrap it
-      if (error instanceof ConflictException || error instanceof BadRequestException) {
+      if (
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
       throw new BadRequestException(error.message);
     }
   }
 
-
   async resendOtp(email) {
-
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
     });
-    if (existingUser) throw new ConflictException('Email already verified. Please login.');
+    if (existingUser)
+      throw new ConflictException('Email already verified. Please login.');
 
     //Get temp data from Redis
     const tempUserDataStr = await this.redis.get(`temp_user:${email}`);
@@ -157,30 +165,66 @@ export class AuthService {
     });
     return {
       success: true,
-      message: 'New OTP sent to your email.'
-    }
+      message: 'New OTP sent to your email.',
+    };
   }
-
 
   async login(logindto) {
     const user = await this.prisma.user.findFirst({
       where: {
         email: logindto.email,
-      }
-    })
+      },
+    });
     if (!user) throw new BadRequestException('Invalid credentials');
-    
-    //compare passwords
-    const isPasswordValid = await comparePassword(logindto.password, user.password);
+
+    const isPasswordValid = await comparePassword(
+      logindto.password,
+      user.password,
+    );
     if (!isPasswordValid) throw new BadRequestException('Invalid credentials');
 
-    const payload = { email: user.email, sub: user.id, district: user.district };
+    const payload = {
+      firstName: user.first_name,
+      email: user.email,
+      sub: user.id,
+      district: user.district,
+    };
 
     const accessToken = this.jwtService.sign(payload, { expiresIn: '5h' });
     return {
       success: true,
       message: 'Login successful',
-      accessToken
+      data: {
+        accessToken,
+      },
+    };
+  }
+
+  async logout(userId: string) {
+    return await this.revokeRefreshToken(userId);
+  }
+
+  async revokeRefreshToken(user_id: string) {
+    try {
+      const storedToken = await this.redis.get(`refresh_token:${user_id}`);
+      if (!storedToken) {
+        return {
+          success: false,
+          message: 'Refresh token not found',
+        };
+      }
+
+      await this.redis.del(`refresh_token:${user_id}`);
+
+      return {
+        success: true,
+        message: 'You logged out successfully',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
     }
   }
 }

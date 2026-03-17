@@ -25,7 +25,10 @@ model User {
   interests UserInterest[]
   latitude  Float?
   longitude Float?
+
+  status Int? @default(1) // 1 for active, 0 for inactive
   isVerified Boolean        @default(false)
+  firebaseToken String?      @unique
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
   posts post[]
