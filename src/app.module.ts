@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import configuration from './config/app.config'; // Your custom config file
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { PostModule } from './modules/post/post.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { UsersModule } from './modules/users/users.module';
         },
       }),
     }),
+    PostModule,
   ],
   controllers: [AppController],
   providers: [AppService],
