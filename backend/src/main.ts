@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
@@ -5,16 +6,17 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+import config from '../src/config/app.config';
 // You'll need to install: yarn add cookie-parser
 // import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // 1. Global Prefix
+  //Global Prefix
   app.setGlobalPrefix('api');
 
-  // 2. Validation: Transforms plain objects to DTO classes and strips extra fields
+  // Validation: Transforms plain objects to DTO classes and strips extra fields
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // Strips fields not defined in the DTO
@@ -23,14 +25,19 @@ async function bootstrap() {
     }),
   );
 
-  // 3. CORS: Allows your frontend (React/Flutter) to talk to the backend
+  const isProduction = process.env.PRODUCTION_MODE === 'true';
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true, // Required for cookies/sessions
+    // In production, we strictly allow only our frontend URL
+    // In development, we can allow localhost or even '*' if needed
+    origin: isProduction ? frontendUrl : [frontendUrl, 'http://localhost:3001'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // Crucial for sending JWTs in cookies if you switch later
   });
 
-  // 4. Cookie Parser: Essential for secure Refresh Tokens later
-  // app.use(cookieParser());
+  // Cookie Parser: Essential for secure Refresh Tokens later
+  app.use(cookieParser());
 
   // Swagger setup...
   const options = new DocumentBuilder()
@@ -50,3 +57,7 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
+function cookieParser(): any {
+  throw new Error('Function not implemented.');
+}
+
