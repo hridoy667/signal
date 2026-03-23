@@ -66,18 +66,33 @@ model UserInterest {
   @@map("user_interests")
 }
 
+model District {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  latitude  Float
+  longitude Float
+
+  @@map("districts")
+}
 model post {
-  id        String     @id @default(uuid())
+  id        String                                @id @default(uuid())
   title     String?
   content   String?
   imageUrl  String[]
   authorId  String
-  author    User       @relation(fields: [authorId], references: [id])
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  likeCount Int                                   @default(0)
+  author    User                                  @relation(fields: [authorId], references: [id])
+  createdAt DateTime                              @default(now())
+  updatedAt DateTime                              @updatedAt
   postVotes postVote[]
   comments  comment[]
+  // PostGIS location field
+  location  Unsupported("geometry(Point, 4326)")?
+  // We still keep these for easy reading in the frontend
+  latitude  Float?
+  longitude Float?
 
+  @@index([location], name: "location_idx", type: Gist)
   @@map("posts")
 }
 

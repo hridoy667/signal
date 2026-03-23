@@ -6,7 +6,7 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
-import config from '../src/config/app.config';
+
 // You'll need to install: yarn add cookie-parser
 // import * as cookieParser from 'cookie-parser';
 
@@ -37,7 +37,7 @@ async function bootstrap() {
   });
 
   // Cookie Parser: Essential for secure Refresh Tokens later
-  app.use(cookieParser());
+  // app.use(cookieParser());
 
   // Swagger setup...
   const options = new DocumentBuilder()
@@ -57,7 +57,7 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
-function cookieParser(): any {
-  throw new Error('Function not implemented.');
-}
+// function cookieParser(): any {
+//   throw new Error('Function not implemented.');
+// }
 

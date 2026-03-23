@@ -25,5 +25,5 @@
       "@prisma/client": ["generated/prisma"] 
     }
   },
-  "include": ["src/**/*", "generated/**/*"]
+  "include": ["src/**/*", "generated/**/*","prisma/seed.ts"]
 }

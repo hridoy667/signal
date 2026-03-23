@@ -34,6 +34,7 @@ export class AuthService {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: registerDto.email },
     });
+
     if (existingUser) throw new ConflictException('Email already exists');
 
     // Handle Image Upload
@@ -48,6 +49,8 @@ export class AuthService {
       fs.writeFileSync(uploadPath, image.buffer);
       avatarUrl = generateAvatarUrl(fileName);
     }
+
+    // console.log(registerDto.password);
 
     //Hash Password
     const hashedPassword = await hashPassword(registerDto.password);
@@ -68,6 +71,8 @@ export class AuthService {
 
     // 5. Generate OTP and store in DB via your Repository
     const otp = await this.ucodeRepository.createOtp(registerDto.email);
+
+    // console.log(otp);
 
     // 6. Send OTP via BullMQ Mail Queue
     await this.mailService.sendOtpCodeToEmail({
