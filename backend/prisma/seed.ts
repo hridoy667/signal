@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable prettier/prettier */
 import { PrismaClient } from '@prisma/client';
 
@@ -86,17 +88,49 @@ const districts = [
 ];
 
 async function main() {
-  console.log('🚀 Starting seed...');
+  
+  console.log('🚀 Syncing Districts...');
+
   for (const d of districts) {
-    await prisma.district.upsert({
+    await prisma.districts.upsert({
       where: { name: d.name },
-      update: { latitude: d.latitude, longitude: d.longitude },
-      create: d,
+      update: { 
+        latitude: d.latitude, 
+        longitude: d.longitude 
+      },
+      create: {
+        name: d.name,
+        latitude: d.latitude,
+        longitude: d.longitude,
+      },
     });
   }
-  console.log('✅ 64 Districts Seeded.');
-}
 
+  
+  console.log('✅ 64 Districts Seeded.');
+
+// async function main() {
+//   console.log('🚀 Starting Raw SQL seed...');
+
+//   for (const d of districts) {
+//     try {
+//       // Direct SQL injection-safe bypass
+//       await prisma.$executeRawUnsafe(
+//         `INSERT INTO districts (name, latitude, longitude) 
+//          VALUES ($1, $2, $3) 
+//          ON CONFLICT (name) DO UPDATE 
+//          SET latitude = $2, longitude = $3`,
+//         d.name, d.latitude, d.longitude
+//       );
+//     } catch (error) {
+//       console.error(`Error seeding ${d.name}:`, error);
+//     }
+//   }
+
+//   console.log('✅ 64 Districts Seeded via Raw SQL.');
+// }
+
+}
 main()
   .catch((e) => { console.error(e); process.exit(1); })
   .finally(async () => { await prisma.$disconnect(); });
