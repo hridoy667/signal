@@ -1,4 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import {
   Controller,
   Post,
@@ -7,6 +11,8 @@ import {
   UploadedFile,
   UseGuards,
   Request,
+  Req,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -26,7 +32,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new user (Waiting Room)' })
@@ -63,6 +69,13 @@ export class AuthController {
   @ApiOperation({ summary: 'Login user' })
   login(@Body() logindto: LoginDto) {
     return this.authService.login(logindto);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  getMe(@Req() req: any) {
+    const userId = req.user.userId;
+    return this.authService.getMe(userId);
   }
 
   @Post('logout')

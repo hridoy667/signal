@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -59,22 +59,50 @@ export class PostService {
     };
   }
 
-  async getRankedSignalFeed(userLat: number, userLng: number, limit: number = 20) {
-  return this.prisma.$queryRaw`
+  async getRankedSignalFeed(userId: string, userLat: number, userLng: number, limit: number = 20) {
+    const posts = await this.prisma.$queryRaw`
     SELECT 
-      id, title, content, "imageUrl", "authorId", "likeCount", "createdAt", latitude, longitude,
-      -- 1. Calculate the Popularity/Recency Score (The Signal)
-      ("likeCount" / POW(EXTRACT(EPOCH FROM (NOW() - "createdAt")) / 3600 + 2, 1.5)) as rank_score,
-      
-      -- 2. Calculate Distance in Kilometers using PostGIS
-      -- ST_Distance returns meters by default with 4326, so we divide by 1000
-      (ST_Distance(location, ST_SetSRID(ST_MakePoint(${userLng}, ${userLat}), 4326), true) / 1000) as distance_km
-    FROM "posts"
-    WHERE "createdAt" > NOW() - INTERVAL '7 days' -- Filter to last week for performance
+      p.id,
+      p.title,
+      p.content,
+      p."imageUrl",
+      p."authorId",
+      p."likeCount",
+      p."createdAt",
+      p.latitude,
+      p.longitude,
+
+      -- Author info via JOIN
+      u.first_name,
+      u.last_name,
+      u."avatarUrl",
+
+      -- Comment count
+      COUNT(c.id)::int AS comment_count,
+
+      -- Ranking score
+      (p."likeCount" / POW(EXTRACT(EPOCH FROM (NOW() - p."createdAt")) / 3600 + 2, 1.5)) AS rank_score,
+
+      -- Distance in km via PostGIS
+      (ST_Distance(
+        p.location::geography,
+        ST_SetSRID(ST_MakePoint(${userLng}, ${userLat}), 4326)::geography
+      ) / 1000) AS distance_km
+
+    FROM posts p
+    LEFT JOIN users u ON u.id = p."authorId"
+    LEFT JOIN comments c ON c."postId" = p.id
+    WHERE p."createdAt" > NOW() - INTERVAL '7 days'
+    GROUP BY p.id, u.id
     ORDER BY rank_score DESC, distance_km ASC
-    LIMIT ${limit};
+    LIMIT ${limit}
   `;
-}
+    return {
+      success: true,
+      message: "Feed fetched successfully",
+      data: posts,
+    };
+  }
 
   async findAll(pagination: PaginationDto) {
     const { cursor, limit } = pagination;
@@ -89,7 +117,7 @@ export class PostService {
       orderBy: {
         createdAt: 'asc', // Or 'desc' depending on your preference
       },
-      select:{
+      select: {
         id: true,
         content: true,
         imageUrl: true,
@@ -98,18 +126,102 @@ export class PostService {
         updatedAt: true,
       }
     });
+
+    return {
+      success: true,
+      message: "Posts retrieved successfully",
+      data: posts
+    }
   }
 
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findOne(id: string) {
+  const post = await this.prisma.post.findUnique({
+    where: { id },
+    include: {
+      author: {
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          avatarUrl: true,
+        },
+      },
+      _count: {
+        select: { comments: true },
+      },
+    },
+  });
+
+  if (!post) throw new NotFoundException('Post not found');
+
+  return {
+    success: true,
+    message: "Post retrieved successfully",
+    data: post,
+  };
+}
+
+async update(id: string, userId: string, updatePostDto: UpdatePostDto, image?: Express.Multer.File) {
+  const post = await this.prisma.post.findUnique({ where: { id } });
+
+  if (!post) throw new NotFoundException('Post not found');
+  if (post.authorId !== userId) throw new ForbiddenException('You can only edit your own posts');
+
+  let uploadedImageUrl: string | null = null;
+
+  if (image) {
+    const fileName = `${Date.now()}-${image.originalname}`;
+    const uploadDir = path.join(process.cwd(), 'public', 'posts');
+
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+    fs.writeFileSync(path.join(uploadDir, fileName), image.buffer);
+
+    const baseUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+    uploadedImageUrl = `${baseUrl}/public/posts/${fileName}`;
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
-  }
+  const finalImages = updatePostDto.imageUrl || post.imageUrl || [];
+  if (uploadedImageUrl) finalImages.push(uploadedImageUrl);
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  const updated = await this.prisma.post.update({
+    where: { id },
+    data: {
+      ...(updatePostDto.content && { content: updatePostDto.content }),
+      imageUrl: finalImages,
+    },
+  });
+
+  return {
+    success: true,
+    message: "Post updated successfully",
+    data: updated,
+  };
+}
+
+async remove(id: string, userId: string) {
+  const post = await this.prisma.post.findUnique({ where: { id } });
+
+  if (!post) throw new NotFoundException('Post not found');
+  if (post.authorId !== userId) throw new ForbiddenException('You can only delete your own posts');
+
+  // Delete image file from disk if it was locally uploaded
+  if (post.imageUrl) {
+    post.imageUrl.forEach((url) => {
+      if (url.includes('/public/posts/')) {
+        const fileName = url.split('/public/posts/')[1];
+        const filePath = path.join(process.cwd(), 'public', 'posts', fileName);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      }
+    });
   }
+  await this.prisma.post.delete({ where: { id } });
+
+  return {
+    success: true,
+    message: "Post deleted successfully",
+    data: null,
+  };
+}
 }

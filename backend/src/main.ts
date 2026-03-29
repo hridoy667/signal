@@ -6,9 +6,10 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+// import * as cookieParser from 'cookie-parser';
 
 // You'll need to install: yarn add cookie-parser
-// import * as cookieParser from 'cookie-parser';
+
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -31,9 +32,10 @@ async function bootstrap() {
   app.enableCors({
     // In production, we strictly allow only our frontend URL
     // In development, we can allow localhost or even '*' if needed
-    origin: isProduction ? frontendUrl : [frontendUrl, 'http://localhost:3001'],
+    origin: isProduction ? frontendUrl : [frontendUrl, 'http://localhost:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // Crucial for sending JWTs in cookies if you switch later
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Cookie Parser: Essential for secure Refresh Tokens later

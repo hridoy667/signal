@@ -6,6 +6,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -203,6 +204,29 @@ export class AuthService {
       data: {
         accessToken,
       },
+    };
+  }
+
+  async getMe(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        email: true,
+        avatarUrl: true,
+        district: true,
+        userName: true,
+      },
+    });
+
+    if (!user) throw new NotFoundException('User not found');
+
+    return {
+      success: true,
+      message: 'User fetched successfully',
+      data: user,
     };
   }
 

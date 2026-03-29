@@ -23,7 +23,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
-@Controller('post')
+@Controller('posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
@@ -40,19 +40,17 @@ export class PostController {
   }
 
   @Get('feed')
+  @UseGuards(JwtAuthGuard)
   getSignalFeed(
-    // We use ParseFloatPipe to convert the string query to a number
+    @Req() req: any,
     @Query('lat', new ParseFloatPipe({ optional: true })) lat?: number,
     @Query('lng', new ParseFloatPipe({ optional: true })) lng?: number,
   ) {
-    // If no coordinates are provided (user denied GPS),
-    // we can use a default (like Dhaka center) or skip distance sorting
     const defaultLat = lat ?? 23.8103;
     const defaultLng = lng ?? 90.4125;
-
-    return this.postService.getRankedSignalFeed(defaultLat, defaultLng);
+    const userId = req.user.sub || req.user.userId || req.user.id; // same fallback chain as create
+    return this.postService.getRankedSignalFeed(userId, defaultLat, defaultLng);
   }
-
   @Get()
   findAll(@Query() paginationDto: PaginationDto) {
     return this.postService.findAll(paginationDto);
@@ -60,16 +58,22 @@ export class PostController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.postService.findOne(+id);
+    return this.postService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postService.update(+id, updatePostDto);
+  update(
+    @Param('id') id: string,
+    @Body() updatePostDto: UpdatePostDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user.sub || req.user.userId || req.user.id;
+    return this.postService.update(id, userId, updatePostDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postService.remove(+id);
+  remove(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user.sub || req.user.userId || req.user.id;
+    return this.postService.remove(id, userId);
   }
 }
