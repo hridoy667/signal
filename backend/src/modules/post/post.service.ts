@@ -66,7 +66,9 @@ export class PostService {
       p.content,
       p."imageUrl",
       p."authorId",
-      p."likeCount",
+      p."upvoats",
+      p."downvoats",
+      p."neutralvoats",
       p."createdAt",
       p.latitude,
       p.longitude,
@@ -79,8 +81,8 @@ export class PostService {
       -- Comment count
       COUNT(c.id)::int AS comment_count,
 
-      -- Ranking score
-      (p."likeCount" / POW(EXTRACT(EPOCH FROM (NOW() - p."createdAt")) / 3600 + 2, 1.5)) AS rank_score,
+      -- Ranking 
+      (p."upvoats" / POW(EXTRACT(EPOCH FROM (NOW() - p."createdAt")) / 3600 + 2, 1.5)) AS rank_score,
 
       -- Distance in km via PostGIS
       (ST_Distance(

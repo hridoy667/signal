@@ -76,22 +76,24 @@ model districts {
 }
 
 model post {
-  id        String                                @id @default(uuid())
-  title     String?
-  content   String?
-  imageUrl  String[]
-  authorId  String
-  likeCount Int                                   @default(0)
-  author    User                                  @relation(fields: [authorId], references: [id])
-  createdAt DateTime                              @default(now())
-  updatedAt DateTime                              @updatedAt
-  postVotes postVote[]
-  comments  comment[]
+  id           String                                @id @default(uuid())
+  title        String?
+  content      String?
+  imageUrl     String[]
+  authorId     String
+  upvoats      Int                                   @default(0)
+  downvoats    Int                                   @default(0)
+  neutralvoats Int                                   @default(0)
+  author       User                                  @relation(fields: [authorId], references: [id])
+  createdAt    DateTime                              @default(now())
+  updatedAt    DateTime                              @updatedAt
+  postVotes    postVote[]
+  comments     comment[]
   // PostGIS location field
-  location  Unsupported("geometry(Point, 4326)")?
+  location     Unsupported("geometry(Point, 4326)")?
   // We still keep these for easy reading in the frontend
-  latitude  Float?
-  longitude Float?
+  latitude     Float?
+  longitude    Float?
 
   @@index([location], name: "location_idx", type: Gist)
   @@map("posts")
@@ -165,7 +167,7 @@ enum RoomType {
 model verificationToken {
   id        String   @id @default(uuid())
   userId    String?
-  email     String? @unique
+  email     String?  @unique
   token     String
   expiresAt DateTime
   user      User?    @relation(fields: [userId], references: [id])
