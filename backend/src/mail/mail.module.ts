@@ -29,7 +29,8 @@ import { join } from 'path';
           from: `"${config.get('app.name')}" <${config.get('mail.from')}>`,
         },
         template: {
-          dir: join(__dirname, 'templates'),
+          // Replace join(__dirname, 'templates') with this:
+          dir: join(process.cwd(), 'dist/mail/templates'),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,

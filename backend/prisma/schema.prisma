@@ -9,34 +9,34 @@ datasource db {
 }
 
 model User {
-  id                       String                    @id @default(uuid())
-  email                    String                    @unique
-  phone                    String?                   @unique
-  first_name               String?
-  last_name                String?
-  userName                 String?                   @unique
-  password                 String
-  gender                   Gender?
-  district                 String?
-  upazila                  String?
-  avatarUrl                String?
-  bio                      String?
-  dateOfBirth              DateTime?
-  latitude                 Float?
-  longitude                Float?
-  type                     String?                   @default("user") // "user" or "admin"
-  status                   Int?                      @default(1) // 1 for active, 0 for inactive
-  isVerified               Boolean                   @default(false)
-  firebaseToken            String?                   @unique
-  createdAt                DateTime                  @default(now())
-  updatedAt                DateTime                  @updatedAt
-  interests                UserInterest[]
-  posts                    post[]
-  postVotes                postVote[]
-  messages                 message[]
-  conversationParticipants conversationParticipant[]
-  verificationTokens       verificationToken[]
-  comments                 comment[]
+  id                 String              @id @default(uuid())
+  email              String              @unique
+  phone              String?             @unique
+  first_name         String?
+  last_name          String?
+  userName           String?             @unique
+  password           String
+  gender             Gender?
+  district           String?
+  upazila            String?
+  avatarUrl          String?
+  bio                String?
+  dateOfBirth        DateTime?
+  latitude           Float?
+  longitude          Float?
+  type               String?             @default("user")
+  status             Int?                @default(1)
+  isVerified         Boolean             @default(false)
+  firebaseToken      String?             @unique
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  interests          UserInterest[]
+  posts              post[]
+  postVotes          postVote[]
+  sentMessages       Message[]           @relation("SentMessages")
+  roomMemberships    Room[]
+  verificationTokens verificationToken[]
+  comments           comment[]
 
   @@map("users")
 }
@@ -67,8 +67,8 @@ model UserInterest {
 }
 
 model districts {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
+  id        Int    @id @default(autoincrement())
+  name      String @unique
   latitude  Float
   longitude Float
 
@@ -131,33 +131,41 @@ model comment {
   @@map("comments")
 }
 
-model conversation {
-  id           String                    @id @default(uuid())
-  participants conversationParticipant[]
-  messages     message[]
+model Room {
+  id        String    @id @default(uuid())
+  roomKey   String?   @unique
+  type      RoomType  @default(DIRECT)
+  name      String?
+  members   User[]
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("rooms")
 }
 
-model message {
-  id             String       @id @default(uuid())
-  conversationId String
-  senderId       String
-  content        String
-  conversation   conversation @relation(fields: [conversationId], references: [id])
-  sender         User         @relation(fields: [senderId], references: [id])
+model Message {
+  id        String    @id @default(uuid())
+  content   String
+  senderId  String
+  roomId    String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  sender    User      @relation("SentMessages", fields: [senderId], references: [id])
+  room      Room      @relation(fields: [roomId], references: [id])
+
+  @@map("messages")
 }
 
-model conversationParticipant {
-  id             String       @id @default(uuid())
-  conversationId String
-  userId         String
-  conversation   conversation @relation(fields: [conversationId], references: [id])
-  user           User         @relation(fields: [userId], references: [id])
+enum RoomType {
+  DIRECT
+  GROUP
 }
 
 model verificationToken {
   id        String   @id @default(uuid())
   userId    String?
-  email     String?
+  email     String? @unique
   token     String
   expiresAt DateTime
   user      User?    @relation(fields: [userId], references: [id])

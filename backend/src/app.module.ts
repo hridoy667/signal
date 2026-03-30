@@ -8,6 +8,7 @@ import configuration from './config/app.config'; // Your custom config file
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { PostModule } from './modules/post/post.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { PostModule } from './modules/post/post.module';
       }),
     }),
     PostModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
