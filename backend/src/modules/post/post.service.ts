@@ -170,6 +170,37 @@ export class PostService {
     };
   }
 
+  async findAllByUser(userId: string) {
+    const posts = await this.prisma.post.findMany({
+      where: {
+        authorId: userId,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            avatarUrl: true,
+          },
+        },
+        // Including counts for the UI (like "5 comments")
+        _count: {
+          select: { comments: true },
+        },
+      },
+      // Order by newest first
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return {
+      success: true,
+      data: posts,
+    };
+  }
+
   async update(id: string, userId: string, updatePostDto: UpdatePostDto, image?: Express.Multer.File) {
     const post = await this.prisma.post.findUnique({ where: { id } });
 
@@ -208,22 +239,43 @@ export class PostService {
     };
   }
 
+
+  // ... inside your Service class
+
   async remove(id: string, userId: string) {
     const post = await this.prisma.post.findUnique({ where: { id } });
 
     if (!post) throw new NotFoundException('Post not found');
-    if (post.authorId !== userId) throw new ForbiddenException('You can only delete your own posts');
-
-    // Delete image file from disk if it was locally uploaded
-    if (post.imageUrl) {
-      post.imageUrl.forEach((url) => {
-        if (url.includes('/public/posts/')) {
-          const fileName = url.split('/public/posts/')[1];
-          const filePath = path.join(process.cwd(), 'public', 'posts', fileName);
-          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-        }
-      });
+    if (post.authorId !== userId) {
+      throw new ForbiddenException('You can only delete your own posts');
     }
+
+    // 1. Handle File Deletion
+    // Ensure post.imageUrl is treated as an array
+    const images = post.imageUrl as string[] | null;
+
+    if (images && Array.isArray(images)) {
+      for (const url of images) {
+        // Check if the URL belongs to your local storage
+        if (url.includes('/public/posts/')) {
+          try {
+            // Extract filename: handles cases where there might be query params
+            const fileName = url.split('/public/posts/')[1].split('?')[0];
+            const filePath = path.join(process.cwd(), 'public', 'posts', fileName);
+
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+              // Note: For high traffic, use fs.promises.unlink(filePath)
+            }
+          } catch (fileErr) {
+            console.error(`Failed to delete file: ${url}`, fileErr);
+            // We continue so the DB record still gets deleted even if a file is missing
+          }
+        }
+      }
+    }
+
+    // 2. Delete from Database
     await this.prisma.post.delete({ where: { id } });
 
     return {

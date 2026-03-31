@@ -11,6 +11,7 @@ import { PostModule } from './modules/post/post.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { VotingModule } from './modules/voting/voting.module';
 import { CommentModule } from './modules/comment/comment.module';
+import { ConversationModule } from './modules/conversation/conversation.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { CommentModule } from './modules/comment/comment.module';
     ChatModule,
     VotingModule,
     CommentModule,
+    ConversationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

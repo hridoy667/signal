@@ -55,7 +55,13 @@ export class PostController {
   findAll(@Query() paginationDto: PaginationDto) {
     return this.postService.findAll(paginationDto);
   }
-
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getMyPosts(@Req() req: any) {
+    // Extract user ID from the JWT payload attached by the Guard
+    const userId = req.user.userId;
+    return this.postService.findAllByUser(userId);
+  }
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.postService.findOne(id);
@@ -67,13 +73,13 @@ export class PostController {
     @Body() updatePostDto: UpdatePostDto,
     @Req() req: any,
   ) {
-    const userId = req.user.sub || req.user.userId || req.user.id;
+    const userId = req.user.userId;
     return this.postService.update(id, userId, updatePostDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req: any) {
-    const userId = req.user.sub || req.user.userId || req.user.id;
+    const userId = req.user.userId;
     return this.postService.remove(id, userId);
   }
 }
