@@ -38,6 +38,11 @@ export class VotingController {
     return this.votingService.findOne(+id);
   }
 
+  // @Get('top-votes')
+  // findTopVotes() {
+  //   return this.votingService.findTopVotes();
+  // }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateVotingDto: UpdateVotingDto) {
     return this.votingService.update(+id, updateVotingDto);

@@ -84,6 +84,7 @@ model post {
   upvoats      Int                                   @default(0)
   downvoats    Int                                   @default(0)
   neutralvoats Int                                   @default(0)
+  comment_count Int       @default(0) 
   author       User                                  @relation(fields: [authorId], references: [id])
   createdAt    DateTime                              @default(now())
   updatedAt    DateTime                              @updatedAt
@@ -124,6 +125,10 @@ model comment {
   content    String
   authorId   String
   postId     String
+  // --- New Fields for Replies ---
+  parentId   String?   // If null, it's a top-level comment
+  parent     comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies    comment[] @relation("CommentReplies")
   hasReplies Boolean  @default(false)
   author     User     @relation(fields: [authorId], references: [id])
   post       post     @relation(fields: [postId], references: [id])

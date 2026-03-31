@@ -79,7 +79,13 @@ export class PostService {
       u."avatarUrl",
 
       -- Comment count
-      COUNT(c.id)::int AS comment_count,
+      COUNT(DISTINCT c.id)::int AS comment_count,
+
+      -- Current user's vote (UPVOTE | DOWNVOTE | NEUTRAL | null)
+      pv.vote AS "userVote",
+
+      -- isLiked derived from vote
+      (pv.vote = 'UPVOTE') AS "isLiked",
 
       -- Ranking 
       (p."upvoats" / POW(EXTRACT(EPOCH FROM (NOW() - p."createdAt")) / 3600 + 2, 1.5)) AS rank_score,
@@ -93,11 +99,13 @@ export class PostService {
     FROM posts p
     LEFT JOIN users u ON u.id = p."authorId"
     LEFT JOIN comments c ON c."postId" = p.id
+    LEFT JOIN post_votes pv ON pv."postId" = p.id AND pv."userId" = ${userId}
     WHERE p."createdAt" > NOW() - INTERVAL '7 days'
-    GROUP BY p.id, u.id
+    GROUP BY p.id, u.id, pv.vote
     ORDER BY rank_score DESC, distance_km ASC
     LIMIT ${limit}
   `;
+
     return {
       success: true,
       message: "Feed fetched successfully",
@@ -127,7 +135,6 @@ export class PostService {
         updatedAt: true,
       }
     });
-
     return {
       success: true,
       message: "Posts retrieved successfully",
@@ -137,92 +144,92 @@ export class PostService {
 
 
   async findOne(id: string) {
-  const post = await this.prisma.post.findUnique({
-    where: { id },
-    include: {
-      author: {
-        select: {
-          id: true,
-          first_name: true,
-          last_name: true,
-          avatarUrl: true,
+    const post = await this.prisma.post.findUnique({
+      where: { id },
+      include: {
+        author: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            avatarUrl: true,
+          },
+        },
+        _count: {
+          select: { comments: true },
         },
       },
-      _count: {
-        select: { comments: true },
-      },
-    },
-  });
-
-  if (!post) throw new NotFoundException('Post not found');
-
-  return {
-    success: true,
-    message: "Post retrieved successfully",
-    data: post,
-  };
-}
-
-async update(id: string, userId: string, updatePostDto: UpdatePostDto, image?: Express.Multer.File) {
-  const post = await this.prisma.post.findUnique({ where: { id } });
-
-  if (!post) throw new NotFoundException('Post not found');
-  if (post.authorId !== userId) throw new ForbiddenException('You can only edit your own posts');
-
-  let uploadedImageUrl: string | null = null;
-
-  if (image) {
-    const fileName = `${Date.now()}-${image.originalname}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'posts');
-
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-    fs.writeFileSync(path.join(uploadDir, fileName), image.buffer);
-
-    const baseUrl = process.env.BACKEND_URL || 'http://localhost:8000';
-    uploadedImageUrl = `${baseUrl}/public/posts/${fileName}`;
-  }
-
-  const finalImages = updatePostDto.imageUrl || post.imageUrl || [];
-  if (uploadedImageUrl) finalImages.push(uploadedImageUrl);
-
-  const updated = await this.prisma.post.update({
-    where: { id },
-    data: {
-      ...(updatePostDto.content && { content: updatePostDto.content }),
-      imageUrl: finalImages,
-    },
-  });
-
-  return {
-    success: true,
-    message: "Post updated successfully",
-    data: updated,
-  };
-}
-
-async remove(id: string, userId: string) {
-  const post = await this.prisma.post.findUnique({ where: { id } });
-
-  if (!post) throw new NotFoundException('Post not found');
-  if (post.authorId !== userId) throw new ForbiddenException('You can only delete your own posts');
-
-  // Delete image file from disk if it was locally uploaded
-  if (post.imageUrl) {
-    post.imageUrl.forEach((url) => {
-      if (url.includes('/public/posts/')) {
-        const fileName = url.split('/public/posts/')[1];
-        const filePath = path.join(process.cwd(), 'public', 'posts', fileName);
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-      }
     });
-  }
-  await this.prisma.post.delete({ where: { id } });
 
-  return {
-    success: true,
-    message: "Post deleted successfully",
-    data: null,
-  };
-}
+    if (!post) throw new NotFoundException('Post not found');
+
+    return {
+      success: true,
+      message: "Post retrieved successfully",
+      data: post,
+    };
+  }
+
+  async update(id: string, userId: string, updatePostDto: UpdatePostDto, image?: Express.Multer.File) {
+    const post = await this.prisma.post.findUnique({ where: { id } });
+
+    if (!post) throw new NotFoundException('Post not found');
+    if (post.authorId !== userId) throw new ForbiddenException('You can only edit your own posts');
+
+    let uploadedImageUrl: string | null = null;
+
+    if (image) {
+      const fileName = `${Date.now()}-${image.originalname}`;
+      const uploadDir = path.join(process.cwd(), 'public', 'posts');
+
+      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+      fs.writeFileSync(path.join(uploadDir, fileName), image.buffer);
+
+      const baseUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+      uploadedImageUrl = `${baseUrl}/public/posts/${fileName}`;
+    }
+
+    const finalImages = updatePostDto.imageUrl || post.imageUrl || [];
+    if (uploadedImageUrl) finalImages.push(uploadedImageUrl);
+
+    const updated = await this.prisma.post.update({
+      where: { id },
+      data: {
+        ...(updatePostDto.content && { content: updatePostDto.content }),
+        imageUrl: finalImages,
+      },
+    });
+
+    return {
+      success: true,
+      message: "Post updated successfully",
+      data: updated,
+    };
+  }
+
+  async remove(id: string, userId: string) {
+    const post = await this.prisma.post.findUnique({ where: { id } });
+
+    if (!post) throw new NotFoundException('Post not found');
+    if (post.authorId !== userId) throw new ForbiddenException('You can only delete your own posts');
+
+    // Delete image file from disk if it was locally uploaded
+    if (post.imageUrl) {
+      post.imageUrl.forEach((url) => {
+        if (url.includes('/public/posts/')) {
+          const fileName = url.split('/public/posts/')[1];
+          const filePath = path.join(process.cwd(), 'public', 'posts', fileName);
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        }
+      });
+    }
+    await this.prisma.post.delete({ where: { id } });
+
+    return {
+      success: true,
+      message: "Post deleted successfully",
+      data: null,
+    };
+  }
 }

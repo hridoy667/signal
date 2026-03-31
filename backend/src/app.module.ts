@@ -10,6 +10,7 @@ import { UsersModule } from './modules/users/users.module';
 import { PostModule } from './modules/post/post.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { VotingModule } from './modules/voting/voting.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { VotingModule } from './modules/voting/voting.module';
     PostModule,
     ChatModule,
     VotingModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -23,12 +23,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post('create')
-  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('image'))
   create(
     @Body() createPostDto: CreatePostDto,
