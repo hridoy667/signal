@@ -25,7 +25,7 @@ export class VotingController {
   @Post()
   vote(@Body() createVotingDto: CreateVotingDto, @Req() req: any) {
     const userId = req.user.userId;
-    return this.votingService.vote(createVotingDto, userId);
+    return this.votingService.vote(userId, createVotingDto);
   }
 
   @Get()

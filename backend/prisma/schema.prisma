@@ -116,7 +116,7 @@ model postVote {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  @@unique([userId, postId])
   @@map("post_votes")
 }
 
