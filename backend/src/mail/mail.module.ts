@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { HandlebarsAdapterPlain } from './handlebars-adapter-plain';
 import { ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { MailService } from './mail.service';
@@ -31,7 +31,7 @@ import { join } from 'path';
         template: {
           // Replace join(__dirname, 'templates') with this:
           dir: join(process.cwd(), 'dist/mail/templates'),
-          adapter: new HandlebarsAdapter(),
+          adapter: new HandlebarsAdapterPlain(),
           options: {
             strict: true,
           },
