@@ -76,11 +76,26 @@ export function DashboardNavbar({ user, isMobile, onMenuOpen, onNewPost }: Props
               </svg>
             </button>
           )}
-          <span
+          <Link
+            href={ROUTES.dashboardMessages}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white/55 transition hover:bg-white/[0.06] hover:text-white sm:h-10 sm:w-10"
+            aria-label="Messages"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path
+                d="M4 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H9l-4 3v-3H6a2 2 0 01-2-2V5z"
+                stroke="currentColor"
+                strokeWidth="1.6"
+              />
+            </svg>
+          </Link>
+          <Link
+            href={ROUTES.dashboardProfile}
             className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-indigo-600 to-violet-700 text-xs font-semibold text-white ring-2 ring-white/10",
+              "flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-indigo-600 to-violet-700 text-xs font-semibold text-white ring-2 ring-white/10 transition hover:ring-indigo-400/40",
             )}
-            title={user?.email}
+            title={user?.email ? `${user.email} — Profile` : "Profile"}
+            aria-label="Your profile"
           >
             {user?.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -92,7 +107,7 @@ export function DashboardNavbar({ user, isMobile, onMenuOpen, onNewPost }: Props
             ) : (
               initials(user)
             )}
-          </span>
+          </Link>
         </div>
       </div>
     </header>

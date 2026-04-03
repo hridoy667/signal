@@ -25,13 +25,15 @@ const links = [
     match: (p: string) => p.startsWith("/dashboard/create"),
     icon: PenIcon,
   },
+  {
+    href: ROUTES.dashboardProfile,
+    label: "Profile",
+    match: (p: string) => p.startsWith("/dashboard/profile"),
+    icon: ProfileIcon,
+  },
 ] as const;
 
-type Props = {
-  onNewPost: () => void;
-};
-
-export function DashboardSidebar({ onNewPost }: Props) {
+export function DashboardSidebar() {
   const pathname = usePathname();
 
   return (
@@ -56,13 +58,6 @@ export function DashboardSidebar({ onNewPost }: Props) {
           );
         })}
       </nav>
-      <button
-        type="button"
-        onClick={onNewPost}
-        className="mt-2 w-full rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-400 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:brightness-110"
-      >
-        Quick post
-      </button>
       <button
         type="button"
         onClick={() => {
@@ -130,6 +125,26 @@ function PenIcon({ active }: { active: boolean }) {
         strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ProfileIcon({ active }: { active: boolean }) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      className={cn(active ? "text-indigo-400" : "text-white/35")}
+      aria-hidden
+    >
+      <path
+        d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 20a8 8 0 0116 0"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
       />
     </svg>
   );

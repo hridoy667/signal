@@ -87,7 +87,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         )}
       >
         {!inChatRoom && !isMobile ? (
-          <DashboardSidebar onNewPost={openCreate} />
+          <DashboardSidebar />
         ) : null}
         <main className="min-w-0 flex-1">{children}</main>
       </div>

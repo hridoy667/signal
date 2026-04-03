@@ -19,6 +19,7 @@ const links = [
   { href: ROUTES.dashboardFeed, label: "Feed" },
   { href: ROUTES.dashboardMessages, label: "Messages" },
   { href: ROUTES.dashboardCreate, label: "New post page" },
+  { href: ROUTES.dashboardProfile, label: "Profile" },
 ] as const;
 
 export function DashboardMobileDrawer({

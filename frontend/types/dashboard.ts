@@ -32,6 +32,41 @@ export type MeUser = {
   userName: string | null;
 };
 
+/** GET /users/user-profile — safe user fields + posts (no password). */
+export type ProfilePost = {
+  id: string;
+  title: string | null;
+  content: string | null;
+  imageUrl: string[] | null;
+  createdAt: string;
+  upvoats: number;
+  downvoats: number;
+  neutralvoats: number;
+  comment_count: number;
+  _count?: {
+    comments: number;
+    postVotes: number;
+  };
+};
+
+export type UserProfile = {
+  id: string;
+  /** Present only when viewing your own profile (same as JWT user). */
+  email?: string;
+  first_name: string | null;
+  last_name: string | null;
+  userName: string | null;
+  gender: string | null;
+  district: string | null;
+  upazila: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  dateOfBirth: string | null;
+  isVerified: boolean;
+  createdAt: string;
+  posts: ProfilePost[];
+};
+
 export type RoomMember = {
   id: string;
   first_name: string | null;
