@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getRooms } from "@/services/api/conversation";
-import { ApiRequestError } from "@/services/api/client";
+import { ApiRequestError } from "@/app/lib/api";
 import type { RoomListItem } from "@/types/dashboard";
 import { resolveMediaUrl } from "@/lib/media-url";
 import { ROUTES } from "@/lib/constants";

@@ -111,6 +111,20 @@ export class ConversationService {
     return { success: true, data: rooms };
   }
 
+  /** Messages from others in rooms the user belongs to, not yet marked read. */
+  async getUnreadMessageCount(userId: string) {
+    const count = await this.prisma.message.count({
+      where: {
+        readAt: null,
+        senderId: { not: userId },
+        room: {
+          members: { some: { id: userId } },
+        },
+      },
+    });
+    return { success: true, data: { count } };
+  }
+
   // Get message history for a room with cursor-based pagination
   async getMessages(
     roomId: string,

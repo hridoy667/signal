@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createPost } from "@/services/api/posts";
-import { ApiRequestError } from "@/services/api/client";
+import { ApiRequestError } from "@/app/lib/api";
 import { ROUTES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

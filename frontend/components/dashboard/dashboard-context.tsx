@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { getMe } from "@/services/api/auth";
+import { getConversationUnreadCount } from "@/services/api/conversation";
 import type { MeUser } from "@/types/dashboard";
 
 type DashboardContextValue = {
@@ -19,6 +20,8 @@ type DashboardContextValue = {
   closeCreate: () => void;
   bumpFeed: () => void;
   feedKey: number;
+  unreadMessagesCount: number;
+  refreshUnreadMessages: () => void;
 };
 
 const DashboardContext = createContext<DashboardContextValue | null>(null);
@@ -28,6 +31,13 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [userLoading, setUserLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [feedKey, setFeedKey] = useState(0);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+
+  const refreshUnreadMessages = useCallback(() => {
+    getConversationUnreadCount()
+      .then((res) => setUnreadMessagesCount(res.data?.count ?? 0))
+      .catch(() => setUnreadMessagesCount(0));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,6 +56,20 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (userLoading || !user) return;
+    refreshUnreadMessages();
+    const t = window.setInterval(refreshUnreadMessages, 45_000);
+    const onVis = () => {
+      if (document.visibilityState === "visible") refreshUnreadMessages();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      window.clearInterval(t);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [userLoading, user, refreshUnreadMessages]);
+
   const openCreate = useCallback(() => setCreateOpen(true), []);
   const closeCreate = useCallback(() => setCreateOpen(false), []);
   const bumpFeed = useCallback(() => setFeedKey((k) => k + 1), []);
@@ -59,8 +83,20 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       closeCreate,
       bumpFeed,
       feedKey,
+      unreadMessagesCount,
+      refreshUnreadMessages,
     }),
-    [user, userLoading, createOpen, openCreate, closeCreate, bumpFeed, feedKey],
+    [
+      user,
+      userLoading,
+      createOpen,
+      openCreate,
+      closeCreate,
+      bumpFeed,
+      feedKey,
+      unreadMessagesCount,
+      refreshUnreadMessages,
+    ],
   );
 
   return (

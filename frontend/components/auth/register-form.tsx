@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { registerMultipart } from "@/services/api/auth";
-import { ApiRequestError } from "@/services/api/client";
+import { ApiRequestError } from "@/app/lib/api";
 import { ROUTES } from "@/lib/constants";
 import type { RegisterPayload } from "@/types";
 import { Button } from "@/components/ui/button";

@@ -1,5 +1,5 @@
 import type { FeedPost } from "@/types/dashboard";
-import { apiFetchAuth } from "./client-auth";
+import { apiFetchAuth } from "@/app/lib/api";
 
 type FeedResponse = {
   success: boolean;

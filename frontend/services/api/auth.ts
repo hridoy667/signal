@@ -7,8 +7,7 @@ import type {
   VerifyEmailPayload,
 } from "@/types";
 import type { MeUser } from "@/types/dashboard";
-import { apiFetch } from "./client";
-import { apiFetchAuth } from "./client-auth";
+import { apiFetch, apiFetchAuth } from "@/app/lib/api";
 
 export async function login(credentials: LoginCredentials) {
   return apiFetch<ApiSuccess<LoginResponseData>>("/auth/login", {

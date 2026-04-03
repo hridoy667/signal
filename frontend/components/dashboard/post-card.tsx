@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createComment, getCommentsByPost } from "@/services/api/comments";
 import { votePost } from "@/services/api/voting";
-import { ApiRequestError } from "@/services/api/client";
+import { ApiRequestError } from "@/app/lib/api";
 import { resolveMediaUrl } from "@/lib/media-url";
 import type { CommentItem, FeedPost, VoteType } from "@/types/dashboard";
 import Link from "next/link";

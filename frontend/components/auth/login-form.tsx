@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { login } from "@/services/api/auth";
-import { ApiRequestError } from "@/services/api/client";
+import { ApiRequestError } from "@/app/lib/api";
 import { setAccessToken } from "@/lib/auth-storage";
 import { ROUTES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";

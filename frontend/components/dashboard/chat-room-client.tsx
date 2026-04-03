@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Socket } from "socket.io-client";
 import { getRoomMessages, getRoom } from "@/services/api/conversation";
-import { ApiRequestError } from "@/services/api/client";
+import { ApiRequestError } from "@/app/lib/api";
 import type { ChatMessage } from "@/types/dashboard";
 import { getAccessToken } from "@/lib/auth-storage";
 import { createChatSocket } from "@/lib/chat-socket";

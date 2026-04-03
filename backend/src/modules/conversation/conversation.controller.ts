@@ -26,6 +26,12 @@ export class ConversationController {
     return this.conversationService.getUserRooms(userId);
   }
 
+  @Get('unread')
+  async getUnread(@Req() req: any) {
+    const userId = req.user.userId;
+    return this.conversationService.getUnreadMessageCount(userId);
+  }
+
   // POST /conversation/rooms/:userId — start or get a DM with someone
   @Post('rooms/:userId')
   async createRoom(@Req() req: any, @Param('userId') otherUserId: string) {

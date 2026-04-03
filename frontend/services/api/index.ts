@@ -1,5 +1,4 @@
-export { apiFetch, getApiBaseUrl, ApiRequestError } from "./client";
-export { apiFetchAuth } from "./client-auth";
+export { apiFetch, apiFetchAuth, getApiBaseUrl, ApiRequestError } from "@/app/lib/api";
 export * from "./auth";
 export * from "./posts";
 export * from "./voting";

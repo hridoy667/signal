@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getFeed } from "@/services/api/posts";
-import { ApiRequestError } from "@/services/api/client";
+import { ApiRequestError } from "@/app/lib/api";
 import type { FeedPost } from "@/types/dashboard";
 import { PostCard } from "@/components/dashboard/post-card";
 import { useDashboard } from "@/components/dashboard/dashboard-context";

@@ -1,5 +1,5 @@
 import type { UserProfile } from "@/types/dashboard";
-import { apiFetchAuth } from "./client-auth";
+import { apiFetchAuth } from "@/app/lib/api";
 
 export async function getMyUserProfile() {
   return apiFetchAuth<{ success: boolean; data: UserProfile }>("/users/user-profile");

@@ -2,7 +2,7 @@
 
 import { io, type Socket } from "socket.io-client";
 import { getAccessToken } from "@/lib/auth-storage";
-import { getApiBaseUrl } from "@/services/api/client";
+import { getApiBaseUrl } from "@/app/lib/api";
 
 export function getSocketBaseUrl(): string {
   return getApiBaseUrl().replace(/\/api$/, "") || "http://localhost:8000";

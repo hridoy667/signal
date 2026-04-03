@@ -1,10 +1,16 @@
 import type { ChatMessage, RoomListItem } from "@/types/dashboard";
-import { apiFetchAuth } from "./client-auth";
+import { apiFetchAuth } from "@/app/lib/api";
 
 type RoomsRes = { success: boolean; data: RoomListItem[] };
 
 export async function getRooms() {
   return apiFetchAuth<RoomsRes>("/conversation/rooms");
+}
+
+export async function getConversationUnreadCount() {
+  return apiFetchAuth<{ success: boolean; data: { count: number } }>(
+    "/conversation/unread",
+  );
 }
 
 export async function getRoomMessages(roomId: string) {

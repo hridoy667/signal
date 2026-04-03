@@ -1,5 +1,5 @@
 import type { CommentItem } from "@/types/dashboard";
-import { apiFetchAuth } from "./client-auth";
+import { apiFetchAuth } from "@/app/lib/api";
 
 type CommentsRes = { success: boolean; data: CommentItem[] };
 
