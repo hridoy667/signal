@@ -10,6 +10,7 @@ import { createChatSocket } from "@/lib/chat-socket";
 import { resolveMediaUrl } from "@/lib/media-url";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDashboard } from "@/components/dashboard/dashboard-context";
 import { cn } from "@/lib/cn";
 
 type Props = {
@@ -17,6 +18,7 @@ type Props = {
 };
 
 export function ChatRoomClient({ roomId }: Props) {
+  const { refreshUnreadMessages } = useDashboard();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +84,12 @@ export function ChatRoomClient({ roomId }: Props) {
   }, [messages, scrollToBottom]);
 
   useEffect(() => {
+    return () => {
+      refreshUnreadMessages();
+    };
+  }, [roomId, refreshUnreadMessages]);
+
+  useEffect(() => {
     let socket: Socket;
     try {
       socket = createChatSocket();
@@ -92,6 +100,8 @@ export function ChatRoomClient({ roomId }: Props) {
 
     function onConnect() {
       socket.emit("join_room", { roomId });
+      socket.emit("mark_read", { roomId });
+      refreshUnreadMessages();
     }
 
     function onNewMessage(
@@ -102,6 +112,8 @@ export function ChatRoomClient({ roomId }: Props) {
         if (prev.some((m) => m.id === msg.id)) return prev;
         return [...prev, msg as ChatMessage];
       });
+      socket.emit("mark_read", { roomId });
+      refreshUnreadMessages();
     }
 
     socket.on("connect", onConnect);
@@ -115,7 +127,7 @@ export function ChatRoomClient({ roomId }: Props) {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [roomId]);
+  }, [roomId, refreshUnreadMessages]);
 
   async function send(e: React.FormEvent) {
     e.preventDefault();

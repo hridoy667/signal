@@ -3,6 +3,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useDashboard } from "@/components/dashboard/dashboard-context";
+import { MessagesUnreadBadge } from "@/components/dashboard/messages-unread-badge";
 import { cn } from "@/lib/cn";
 import { ROUTES } from "@/lib/constants";
 
@@ -13,6 +15,7 @@ type Props = {
 
 export function MobileBottomNav({ onMenuOpen, onCreateOpen }: Props) {
   const pathname = usePathname();
+  const { unreadMessagesCount } = useDashboard();
 
   const feedActive =
     pathname === "/dashboard" ||
@@ -78,21 +81,33 @@ function NavIcon({
   label,
   active,
   icon,
+  unreadCount = 0,
 }: {
   href: string;
   label: string;
   active: boolean;
   icon: ReactNode;
+  unreadCount?: number;
 }) {
   return (
     <Link
       href={href}
       className={cn(
-        "flex min-w-[4rem] flex-col items-center gap-1 rounded-xl py-2 text-[0.65rem] font-medium transition-colors",
+        "relative flex min-w-[4rem] flex-col items-center gap-1 rounded-xl py-2 text-[0.65rem] font-medium transition-colors",
         active ? "text-indigo-400" : "text-white/35 hover:text-white/55",
       )}
+      aria-label={
+        href === ROUTES.dashboardMessages && unreadCount > 0
+          ? `${label}, ${unreadCount} unread`
+          : undefined
+      }
     >
-      {icon}
+      <span className="relative flex h-8 w-8 items-center justify-center">
+        {icon}
+        {href === ROUTES.dashboardMessages ? (
+          <MessagesUnreadBadge count={unreadCount} />
+        ) : null}
+      </span>
       {label}
     </Link>
   );
