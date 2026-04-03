@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ROUTES } from "@/lib/constants";
 import { resolveMediaUrl } from "@/lib/media-url";
 import type { MeUser } from "@/types/dashboard";
+import { useDashboard } from "@/components/dashboard/dashboard-context";
+import { MessagesUnreadBadge } from "@/components/dashboard/messages-unread-badge";
 import { cn } from "@/lib/cn";
 
 function initials(u: MeUser | null) {
@@ -21,6 +23,8 @@ type Props = {
 };
 
 export function DashboardNavbar({ user, isMobile, onMenuOpen, onNewPost }: Props) {
+  const { unreadMessagesCount } = useDashboard();
+
   return (
     <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#080a0f]/90 backdrop-blur-xl">
       <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-3 px-3 py-3 sm:px-6">
@@ -78,8 +82,12 @@ export function DashboardNavbar({ user, isMobile, onMenuOpen, onNewPost }: Props
           )}
           <Link
             href={ROUTES.dashboardMessages}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white/55 transition hover:bg-white/[0.06] hover:text-white sm:h-10 sm:w-10"
-            aria-label="Messages"
+            className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white/55 transition hover:bg-white/[0.06] hover:text-white sm:h-10 sm:w-10"
+            aria-label={
+              unreadMessagesCount > 0
+                ? `Messages, ${unreadMessagesCount} unread`
+                : "Messages"
+            }
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path
@@ -88,6 +96,7 @@ export function DashboardNavbar({ user, isMobile, onMenuOpen, onNewPost }: Props
                 strokeWidth="1.6"
               />
             </svg>
+            <MessagesUnreadBadge count={unreadMessagesCount} />
           </Link>
           <Link
             href={ROUTES.dashboardProfile}

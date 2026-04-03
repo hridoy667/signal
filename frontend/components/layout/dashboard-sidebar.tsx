@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ROUTES } from "@/lib/constants";
 import { clearAccessToken } from "@/lib/auth-storage";
+import { useDashboard } from "@/components/dashboard/dashboard-context";
+import { MessagesUnreadBadge } from "@/components/dashboard/messages-unread-badge";
 import { cn } from "@/lib/cn";
 
 const links = [
@@ -35,12 +37,14 @@ const links = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const { unreadMessagesCount } = useDashboard();
 
   return (
     <aside className="sticky top-[57px] hidden w-[220px] shrink-0 flex-col gap-2 md:flex">
       <nav className="flex flex-col gap-1">
         {links.map(({ href, label, match, icon: Icon }) => {
           const active = match(pathname);
+          const isMessages = href === ROUTES.dashboardMessages;
           return (
             <Link
               key={href}
@@ -51,8 +55,20 @@ export function DashboardSidebar() {
                   ? "bg-indigo-500/15 text-indigo-300"
                   : "text-white/45 hover:bg-white/[0.04] hover:text-white/80",
               )}
+              aria-label={
+                isMessages && unreadMessagesCount > 0
+                  ? `${label}, ${unreadMessagesCount} unread`
+                  : undefined
+              }
             >
-              <Icon active={active} />
+              {isMessages ? (
+                <span className="relative flex h-6 w-6 shrink-0 items-center justify-center">
+                  <Icon active={active} />
+                  <MessagesUnreadBadge count={unreadMessagesCount} />
+                </span>
+              ) : (
+                <Icon active={active} />
+              )}
               {label}
             </Link>
           );

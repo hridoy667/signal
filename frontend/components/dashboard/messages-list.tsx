@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { getRooms } from "@/services/api/conversation";
 import { ApiRequestError } from "@/app/lib/api";
+import { useDashboard } from "@/components/dashboard/dashboard-context";
 import type { RoomListItem } from "@/types/dashboard";
 import { resolveMediaUrl } from "@/lib/media-url";
 import { ROUTES } from "@/lib/constants";
@@ -22,6 +23,10 @@ function preview(room: RoomListItem) {
 }
 
 export function MessagesList() {
+  const { refreshUnreadMessages } = useDashboard();
+  const refreshUnreadRef = useRef(refreshUnreadMessages);
+  refreshUnreadRef.current = refreshUnreadMessages;
+
   const [rooms, setRooms] = useState<RoomListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +37,10 @@ export function MessagesList() {
       setError(null);
       try {
         const res = await getRooms();
-        if (!cancelled) setRooms(res.data ?? []);
+        if (!cancelled) {
+          setRooms(res.data ?? []);
+          refreshUnreadRef.current();
+        }
       } catch (e) {
         if (!cancelled) {
           const msg =

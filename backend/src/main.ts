@@ -61,7 +61,9 @@ async function bootstrap() {
 
   app.useStaticAssets('public');
 
-  await app.listen(process.env.PORT ?? 3000);
+  // Default 8000 so Next.js can use 3000; matches frontend getApiBaseUrl() fallback.
+  const port = process.env.PORT ?? 8000;
+  await app.listen(port);
 }
 bootstrap();
 
