@@ -79,6 +79,8 @@ export type RoomListItem = {
   roomKey: string | null;
   type: string;
   name: string | null;
+  /** Unread messages from others in this room (for the current user). */
+  unreadCount?: number;
   members: RoomMember[];
   messages: {
     id: string;

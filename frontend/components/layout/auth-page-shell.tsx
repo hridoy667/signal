@@ -1,11 +1,12 @@
-import { SiteHeader } from "@/components/layout/site-header";
+import { Navbar } from "@/components/layout/navbar";
+import { cn } from "@/lib/utils";
 
 export function AuthPageShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex min-h-dvh flex-col overflow-x-hidden bg-app text-zinc-900 antialiased dark:text-zinc-50">
       <AuthAmbientLayers />
 
-      <SiteHeader variant="minimal" dense />
+      <Navbar variant="minimal" dense />
 
       {/* Form column first on mobile — no marketing block above the fold */}
       <main className="relative z-[1] grid min-h-0 flex-1 lg:grid-cols-[minmax(0,1fr)_min(100%,480px)]">
@@ -26,15 +27,14 @@ export function AuthPageShell({ children }: { children: React.ReactNode }) {
               <AsidePreviewCard
                 title="Near you"
                 subtitle="12 new posts · 3 trending"
-                accent="from-teal-500/20 to-teal-500/5"
+                variant="teal"
               />
               <AsidePreviewCard
                 title="District poll"
-                subtitle="“New park hours?” · 128 ↑"
-                accent="from-violet-500/20 to-violet-500/5"
+                subtitle={'"New park hours?" · 128 ↑'}
+                variant="violet"
                 offset
-              />
-            </div>
+              />            </div>
           </div>
           <div className="relative z-[1] mt-10 flex items-end justify-between gap-4">
             <div className="flex gap-2">
@@ -66,9 +66,8 @@ export function AuthPageShell({ children }: { children: React.ReactNode }) {
             </span>
             <span className="text-zinc-600 dark:text-zinc-400">
               {" "}
-              · local feed &amp; chat
-            </span>
-          </p>
+              · local feed & chat
+            </span>          </p>
           <div className="flex justify-center gap-5 text-[10px]">
             {[
               { k: "Geo", v: "Feed" },
@@ -126,19 +125,23 @@ function AsideGlows() {
 function AsidePreviewCard({
   title,
   subtitle,
-  accent,
+  variant,
   offset,
 }: {
   title: string;
   subtitle: string;
-  accent: string;
+  variant: "teal" | "violet";
   offset?: boolean;
 }) {
   return (
     <div
-      className={`rounded-xl border border-white/10 bg-gradient-to-br p-3.5 shadow-lg backdrop-blur-sm ${accent} ${offset ? "ml-4" : ""}`}
-    >
-      <div className="flex items-center gap-3">
+      className={cn(
+        "rounded-xl border border-white/10 bg-gradient-to-br p-3.5 shadow-lg backdrop-blur-sm",
+        variant === "teal" && "from-teal-500/20 to-teal-500/5",
+        variant === "violet" && "from-violet-500/20 to-violet-500/5",
+        offset && "ml-4",
+      )}
+    >      <div className="flex items-center gap-3">
         <div className="size-9 shrink-0 rounded-full bg-gradient-to-br from-white/20 to-white/5 ring-1 ring-white/20" />
         <div className="min-w-0">
           <p className="text-sm font-semibold text-white">{title}</p>

@@ -12,11 +12,13 @@ import { ChatModule } from './modules/chat/chat.module';
 import { VotingModule } from './modules/voting/voting.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { ConversationModule } from './modules/conversation/conversation.module';
+import { DistrictsModule } from './modules/districts/districts.module';
 
 @Module({
   imports: [
     // 1. You MUST load the ConfigModule first
     AuthModule,
+    DistrictsModule,
     UsersModule,
     ConfigModule.forRoot({
       load: [configuration],

@@ -108,7 +108,30 @@ export class ConversationService {
       orderBy: { updatedAt: 'desc' },
     });
 
-    return { success: true, data: rooms };
+    if (rooms.length === 0) {
+      return { success: true, data: [] };
+    }
+
+    const roomIds = rooms.map((r) => r.id);
+    const unreadGroups = await this.prisma.message.groupBy({
+      by: ['roomId'],
+      where: {
+        roomId: { in: roomIds },
+        readAt: null,
+        senderId: { not: userId },
+      },
+      _count: { _all: true },
+    });
+    const unreadByRoom = new Map(
+      unreadGroups.map((g) => [g.roomId, g._count._all]),
+    );
+
+    const data = rooms.map((room) => ({
+      ...room,
+      unreadCount: unreadByRoom.get(room.id) ?? 0,
+    }));
+
+    return { success: true, data };
   }
 
   /** Messages from others in rooms the user belongs to, not yet marked read. */

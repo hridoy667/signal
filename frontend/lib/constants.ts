@@ -4,6 +4,7 @@ export const ROUTES = {
   register: "/register",
   verifyEmail: "/verify-email",
   about: "/about",
+  pricing: "/pricing",
   dashboardFeed: "/dashboard/feed",
   dashboardCreate: "/dashboard/create",
   dashboardMessages: "/dashboard/messages",

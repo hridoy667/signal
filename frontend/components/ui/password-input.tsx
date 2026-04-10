@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils";
 
 export type PasswordInputProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,

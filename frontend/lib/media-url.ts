@@ -1,4 +1,4 @@
-import { getApiBaseUrl } from "@/app/lib/api";
+import { getApiBaseUrl } from "@/lib/api";
 
 /** API origin without `/api` — for static files served by the backend. */
 export function getPublicOrigin(): string {
