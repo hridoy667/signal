@@ -4,8 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ROUTES } from "@/lib/constants";
 import { clearAccessToken } from "@/lib/auth-storage";
+<<<<<<< HEAD:frontend/components/layout/sidebar.tsx
 import { MessagesUnreadBadge, useDashboard } from "@/features/dashboard";
 import { cn } from "@/lib/utils";
+=======
+import { useDashboard } from "@/components/dashboard/dashboard-context";
+import { MessagesUnreadBadge } from "@/components/dashboard/messages-unread-badge";
+import { cn } from "@/lib/cn";
+>>>>>>> 24836ea75c8569436a85f96dff147bc9c58d3487:frontend/components/layout/dashboard-sidebar.tsx
 
 const links = [
   {

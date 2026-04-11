@@ -1,4 +1,8 @@
+<<<<<<< HEAD:frontend/features/dashboard/components/messages-unread-badge.tsx
 import { cn } from "@/lib/utils";
+=======
+import { cn } from "@/lib/cn";
+>>>>>>> 24836ea75c8569436a85f96dff147bc9c58d3487:frontend/components/dashboard/messages-unread-badge.tsx
 
 type Props = {
   count: number;

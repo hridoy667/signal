@@ -10,8 +10,13 @@ import { createChatSocket } from "@/lib/chat-socket";
 import { resolveMediaUrl } from "@/lib/media-url";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+<<<<<<< HEAD:frontend/features/dashboard/components/chat-room-client.tsx
 import { useDashboard } from "./dashboard-context";
 import { cn } from "@/lib/utils";
+=======
+import { useDashboard } from "@/components/dashboard/dashboard-context";
+import { cn } from "@/lib/cn";
+>>>>>>> 24836ea75c8569436a85f96dff147bc9c58d3487:frontend/components/dashboard/chat-room-client.tsx
 
 type Props = {
   roomId: string;

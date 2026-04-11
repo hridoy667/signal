@@ -1,10 +1,18 @@
 "use client";
 
+<<<<<<< HEAD:frontend/features/dashboard/components/messages-list.tsx
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { getRooms } from "@/services/conversation.service";
 import { ApiRequestError } from "@/lib/api";
 import { useDashboard } from "./dashboard-context";
+=======
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { getRooms } from "@/services/api/conversation";
+import { ApiRequestError } from "@/app/lib/api";
+import { useDashboard } from "@/components/dashboard/dashboard-context";
+>>>>>>> 24836ea75c8569436a85f96dff147bc9c58d3487:frontend/components/dashboard/messages-list.tsx
 import type { RoomListItem } from "@/types/dashboard";
 import { resolveMediaUrl } from "@/lib/media-url";
 import { ROUTES } from "@/lib/constants";
@@ -24,7 +32,11 @@ function preview(room: RoomListItem) {
 }
 
 export function MessagesList() {
+<<<<<<< HEAD:frontend/features/dashboard/components/messages-list.tsx
   const { refreshUnreadMessages, unreadMessagesCount } = useDashboard();
+=======
+  const { refreshUnreadMessages } = useDashboard();
+>>>>>>> 24836ea75c8569436a85f96dff147bc9c58d3487:frontend/components/dashboard/messages-list.tsx
   const refreshUnreadRef = useRef(refreshUnreadMessages);
   refreshUnreadRef.current = refreshUnreadMessages;
 
@@ -56,6 +68,7 @@ export function MessagesList() {
   }, []);
 
   useEffect(() => {
+<<<<<<< HEAD:frontend/features/dashboard/components/messages-list.tsx
     void loadRooms();
   }, [loadRooms]);
 
@@ -64,6 +77,31 @@ export function MessagesList() {
     if (!initialLoadDone.current) return;
     void loadRooms({ isRefresh: true });
   }, [unreadMessagesCount, loadRooms]);
+=======
+    let cancelled = false;
+    (async () => {
+      setError(null);
+      try {
+        const res = await getRooms();
+        if (!cancelled) {
+          setRooms(res.data ?? []);
+          refreshUnreadRef.current();
+        }
+      } catch (e) {
+        if (!cancelled) {
+          const msg =
+            e instanceof ApiRequestError ? e.message : "Could not load chats.";
+          setError(msg);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+>>>>>>> 24836ea75c8569436a85f96dff147bc9c58d3487:frontend/components/dashboard/messages-list.tsx
 
   if (loading) {
     return (
