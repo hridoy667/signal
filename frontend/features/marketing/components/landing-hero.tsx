@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/components/ui/button";
-import { HeroShowcase } from "@/features/marketing/components/hero-showcase";
+import { HeroShowcase } from "./hero-showcase";
 import { ROUTES } from "@/lib/constants";
 
 export function LandingHero() {

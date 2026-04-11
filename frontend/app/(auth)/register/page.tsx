@@ -1,6 +1,5 @@
 import { AuthPageShell } from "@/components/layout/auth-page-shell";
-import { AuthCardGlow } from "@/features/auth/components/auth-card-glow";
-import { RegisterForm } from "@/features/auth/components/register-form";
+import { AuthCardGlow, RegisterForm } from "@/features/auth";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 
 export default function RegisterPage() {

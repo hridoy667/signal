@@ -3,8 +3,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useDashboard } from "@/features/dashboard/components/dashboard-context";
-import { MessagesUnreadBadge } from "@/features/dashboard/components/messages-unread-badge";
+import { MessagesUnreadBadge } from "./messages-unread-badge";
+import { useDashboard } from "./dashboard-context";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { CreatePostForm } from "@/features/dashboard/components/create-post-form";
+import { CreatePostForm } from "./create-post-form";
 
 type Props = {
   open: boolean;

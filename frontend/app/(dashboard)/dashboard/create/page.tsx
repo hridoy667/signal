@@ -1,4 +1,4 @@
-import { CreatePostForm } from "@/features/dashboard/components/create-post-form";
+import { CreatePostForm } from "@/features/dashboard";
 
 export default function CreatePostPage() {
   return (

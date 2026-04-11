@@ -10,7 +10,7 @@ import { createChatSocket } from "@/lib/chat-socket";
 import { resolveMediaUrl } from "@/lib/media-url";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useDashboard } from "@/features/dashboard/components/dashboard-context";
+import { useDashboard } from "./dashboard-context";
 import { cn } from "@/lib/utils";
 
 type Props = {

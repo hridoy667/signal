@@ -1,6 +1,4 @@
-import { DashboardProvider } from "@/features/dashboard/components/dashboard-context";
-import { DashboardShell } from "@/features/dashboard/components/dashboard-shell";
-import { RequireAuth } from "@/features/dashboard/components/require-auth";
+import { DashboardProvider, DashboardShell, RequireAuth } from "@/features/dashboard";
 
 export default function DashboardLayout({
   children,

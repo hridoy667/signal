@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { AuthPageShell } from "@/components/layout/auth-page-shell";
-import { AuthCardGlow } from "@/features/auth/components/auth-card-glow";
-import { VerifyEmailForm } from "@/features/auth/components/verify-email-form";
+import { AuthCardGlow, VerifyEmailForm } from "@/features/auth";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 
 function VerifyFallback() {

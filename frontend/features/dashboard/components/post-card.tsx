@@ -9,7 +9,7 @@ import type { CommentItem, FeedPost, VoteType } from "@/types/dashboard";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useDashboard } from "@/features/dashboard/components/dashboard-context";
+import { useDashboard } from "./dashboard-context";
 import { dashboardProfilePath } from "@/lib/constants";
 import type { MeUser } from "@/types/dashboard";
 import { cn } from "@/lib/utils";

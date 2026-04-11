@@ -4,8 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { getFeed } from "@/services/posts.service";
 import { ApiRequestError } from "@/lib/api";
 import type { FeedPost, VoteType } from "@/types/dashboard";
-import { PostCard } from "@/features/dashboard/components/post-card";
-import { useDashboard } from "@/features/dashboard/components/dashboard-context";
+import { PostCard } from "./post-card";
+import { useDashboard } from "./dashboard-context";
 
 function num(v: unknown): number {
   if (typeof v === "bigint") return Number(v);

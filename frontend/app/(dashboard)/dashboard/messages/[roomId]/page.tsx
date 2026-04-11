@@ -1,4 +1,4 @@
-import { ChatRoomClient } from "@/features/dashboard/components/chat-room-client";
+import { ChatRoomClient } from "@/features/dashboard";
 
 type Props = { params: Promise<{ roomId: string }> };
 

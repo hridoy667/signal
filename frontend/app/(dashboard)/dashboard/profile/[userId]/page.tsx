@@ -1,4 +1,4 @@
-import { ProfileClient } from "@/features/dashboard/components/profile-client";
+import { ProfileClient } from "@/features/dashboard";
 
 type Props = { params: Promise<{ userId: string }> };
 

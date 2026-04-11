@@ -1,11 +1,10 @@
-"use client";
+// "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ROUTES } from "@/lib/constants";
 import { clearAccessToken } from "@/lib/auth-storage";
-import { useDashboard } from "@/features/dashboard/components/dashboard-context";
-import { MessagesUnreadBadge } from "@/features/dashboard/components/messages-unread-badge";
+import { MessagesUnreadBadge, useDashboard } from "@/features/dashboard";
 import { cn } from "@/lib/utils";
 
 const links = [

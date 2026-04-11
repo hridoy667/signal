@@ -1,8 +1,6 @@
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
-import { FeatureGrid } from "@/features/marketing/components/feature-grid";
-import { LandingCta } from "@/features/marketing/components/landing-cta";
-import { LandingHero } from "@/features/marketing/components/landing-hero";
+import { FeatureGrid, LandingCta, LandingHero } from "@/features/marketing";
 
 export default function HomePage() {
   return (

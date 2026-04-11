@@ -8,7 +8,7 @@ import { ApiRequestError } from "@/lib/api";
 import { resolveMediaUrl } from "@/lib/media-url";
 import { ROUTES } from "@/lib/constants";
 import type { ProfilePost, UserProfile } from "@/types/dashboard";
-import { useDashboard } from "@/features/dashboard/components/dashboard-context";
+import { useDashboard } from "./dashboard-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 

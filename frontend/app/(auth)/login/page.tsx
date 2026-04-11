@@ -1,6 +1,5 @@
 import { AuthPageShell } from "@/components/layout/auth-page-shell";
-import { AuthCardGlow } from "@/features/auth/components/auth-card-glow";
-import { LoginForm } from "@/features/auth/components/login-form";
+import { AuthCardGlow, LoginForm } from "@/features/auth";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 
 export default async function LoginPage({

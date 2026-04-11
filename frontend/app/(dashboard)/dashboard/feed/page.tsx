@@ -1,4 +1,4 @@
-import { FeedClient } from "@/features/dashboard/components/feed-client";
+import { FeedClient } from "@/features/dashboard";
 
 export default function FeedPage() {
   return <FeedClient />;

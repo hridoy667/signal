@@ -6,12 +6,12 @@ import { usePathname } from "next/navigation";
 import { ROUTES } from "@/lib/constants";
 import { resolveMediaUrl } from "@/lib/media-url";
 import { Spinner } from "@/components/ui/spinner";
-import { DashboardNavbar } from "@/features/dashboard/components/dashboard-navbar";
 import { Sidebar } from "@/components/layout/sidebar";
-import { DashboardMobileDrawer } from "@/features/dashboard/components/dashboard-mobile-drawer";
-import { MobileBottomNav } from "@/features/dashboard/components/mobile-bottom-nav";
-import { CreatePostModal } from "@/features/dashboard/components/create-post-modal";
-import { useDashboard } from "@/features/dashboard/components/dashboard-context";
+import { CreatePostModal } from "./create-post-modal";
+import { DashboardMobileDrawer } from "./dashboard-mobile-drawer";
+import { DashboardNavbar } from "./dashboard-navbar";
+import { MobileBottomNav } from "./mobile-bottom-nav";
+import { useDashboard } from "./dashboard-context";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 
